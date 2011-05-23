@@ -169,6 +169,8 @@ class XoverHandlePair(QGraphicsItem):
         key = ((fromIndex, fromHelixNum), (toIndex, toHelixNum))
         self.phg.xovers[key].destroy()
         del self.phg.xovers[key]
+        s = self.phg.pathController.mainWindow.sliceGraphicsView.scene()
+        s.update(s.sceneRect())
         # Push RemoveXoverCommand to undostack.
         self.undoStack.beginMacro("Remove Crossover from %d[%d] to %d[%d]" %\
                        (fromHelixNum, fromIndex, toHelixNum, toIndex))

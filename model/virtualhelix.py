@@ -33,6 +33,7 @@ from .enum import LatticeType, Parity, StrandType, BreakType, Crossovers
 from observable import Observable
 from PyQt4.QtCore import pyqtSignal, QObject
 from .base import Base
+from math import pi, sin, cos
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
@@ -133,6 +134,35 @@ class VirtualHelix(QObject):
         if index > self._size-1:
             return False
         return self._stapleBases[index].isCrossover()
+    
+    def crossedOverHelices(self):
+        ret = set()
+        n = self.number()
+        if self.parity() == Parity.Even:
+            for b in self._scaffoldBases:
+                if b.getPrev()!=-1 and b.getPrev().vhelixNum() != n:
+                    ret.add(b.getPrev().vhelix())
+                if b.getNext()!=-1 and b.getNext().vhelixNum() != n:
+                    ret.add(b.getNext().vhelix())
+        return ret
+    
+    def crossedOverAngles(self):
+        neighborToAngle = {}
+        neighbors = self.getNeighbors()
+        even = self.parity() == Parity.Even
+        for i in range(len(neighbors)):
+            n = neighbors[i]
+            if not n:
+                continue
+            if even:
+                neighborToAngle[n] = i*(2*pi/3)-pi/6
+            else:
+                neighborToAngle[n] = i*(2*pi/3)+5*pi/6
+        ret = set()
+        for v in self.crossedOverHelices():
+            ret.add(neighborToAngle[v])
+        return ret
+            
 
     def getScaffoldHandleIndexList(self):
         """

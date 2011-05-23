@@ -350,4 +350,22 @@ class PathHelix(QGraphicsItem):
         self.update(self.rect)
         self.PathHelix3D.updateDNA(strandType, endpoints)
 
+    def strandIsTop(self, strandType):
+        return self.evenParity() and strandType==StrandType.Scaffold\
+           or not self.evenParity() and strandType == StrandType.Staple
+    
+    def baseLocation(self, strandType, baseIdx, center=False):
+        """Returns the coordinates of the upper left corner of the base
+        referenced by strandType and baseIdx. If center=True, returns the
+        center of the base instead of the upper left corner."""
+        if self.strandIsTop(strandType):
+            y = 0
+        else:
+            y = self.baseWidth
+        x = baseIdx*self.baseWidth
+        if center:
+            y += self.baseWidth/2
+            x += self.baseWidth/2
+        return (x,y)
+
 # end class

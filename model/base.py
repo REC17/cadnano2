@@ -103,6 +103,9 @@ class Base(object):
     def vhelixNum(self):
         """docstring for vhelixNum"""
         return self._vhelix.number()
+    
+    def vhelix(self):
+        return self._vhelix
 
     def isNull(self):
         if self._prevBase == Base._null and\

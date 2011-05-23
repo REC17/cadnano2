@@ -328,6 +328,8 @@ class PreXoverHandle(QGraphicsItem):
                                                       parent=self.phg)
         key = ((fromIndex, fromHelixNum), (toIndex, toHelixNum))
         self.phg.xovers[key] = xhpair
+        s = self.phg.pathController.mainWindow.sliceGraphicsView.scene()
+        s.update(s.sceneRect())
         # self.phg.xovers[((toIndex, toHelixNum),\
         #                  (fromIndex, fromHelixNum))] = xhpair
         # Update data structure and redraw via InstallXoverCommand

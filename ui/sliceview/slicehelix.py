@@ -28,7 +28,7 @@ slicehelix.py
 Created by Shawn on 2010-06-15.
 """
 
-from PyQt4.QtCore import QRectF
+from PyQt4.QtCore import QRectF, Qt
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
@@ -36,6 +36,7 @@ from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
 from model.virtualhelix import VirtualHelix
 from model.enum import Parity
+from math import pi, sin, cos
 
 
 class SliceHelix(QGraphicsItem):
@@ -203,19 +204,33 @@ class SliceHelix(QGraphicsItem):
         return self._col
 
     def paint(self, painter, option, widget=None):
-        if self._number >= 0:
+        b = self.defBrush
+        p = self.defPen
+        vh = self.virtualHelix()
+        if vh:
             if self.intersectsActiveSlice(): 
-                painter.setBrush(self.useBrush)
-                painter.setPen(self.usePen)
+                b, p = self.useBrush, self.usePen
             else:
-                painter.setBrush(self.outOfSliceBrush)
-                painter.setPen(self.outOfSlicePen)
-        else:
-            painter.setBrush(self.defBrush)
-            painter.setPen(self.defPen)
+                b, p = self.outOfSliceBrush, self.outOfSlicePen
         if self.beingHoveredOver:
-            painter.setPen(self.hovPen)
+            p = self.hovPen
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(b)
         painter.drawEllipse(self.rect)
+        painter.setBrush(Qt.NoBrush)
+        if vh:
+            r = self.radius
+            painter.setPen(self.defPen)
+            ori = self.rect.center()
+            ori = (ori.x(), ori.y())
+            for ang in vh.crossedOverAngles():
+                x, y = cos(ang)*r, -sin(ang)*r
+                x1, y1 = ori[0]+x*.5, ori[1]+y*.5
+                x2, y2 = ori[0]+x*1.5, ori[1]+y*1.5
+                painter.drawLine(x1,y1, x2,y2)
+        painter.setPen(p)
+        painter.drawEllipse(self.rect)
+                
     # end def
 
     def boundingRect(self):
