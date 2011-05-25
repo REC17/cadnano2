@@ -40,6 +40,7 @@ from model.virtualhelix import VirtualHelix
 from handles.breakpointhandle import BreakpointHandle
 from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
 from weakref import ref
+from handles.pathhelixhandle import PathHelixHandle
 
 baseWidth = styles.PATH_BASE_WIDTH
 ppL5 = QPainterPath()  # Left 5' PainterPath
@@ -77,10 +78,10 @@ class PathHelix(QGraphicsItem):
     """
     minorGridPen = QPen(styles.minorgridstroke, 1)
     majorGridPen = QPen(styles.majorgridstroke, 2)
-    scafPen = QPen(styles.scafstroke, 0)
+    scafPen = QPen(styles.scafstroke, 2)
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
-    verticalMargin = 100
+    verticalMargin = 20
 
     def __init__(self, vhelix, parent):
         super(PathHelix, self).__init__(parent)
@@ -94,9 +95,8 @@ class PathHelix(QGraphicsItem):
         self._scaffoldLines = None
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
-        self.setParentItem(parent)
         self.step = 21  # 32 for Square lattice
-        self.pathController = parent.pathController  # assumes parent is phg
+        self.pathController = pathController  # assumes parent is phg
         self.setZValue(styles.ZPATHHELIX)
         
         # self.updateRect()
@@ -125,7 +125,7 @@ class PathHelix(QGraphicsItem):
     def handle(self):
         if self._handle:
             return self._handle
-        self._handle = PathHelixHadle()
+        self._handle = PathHelixHandle(self.vhelix())
         return self._handle
 
     def number(self):
@@ -243,9 +243,6 @@ class PathHelix(QGraphicsItem):
         painter.drawLines(self.scaffoldLines())  # Blue scaffold lines
         painter.setBrush(styles.bluestroke)
         painter.drawPath(self.scaffoldEndpoints())  # Blue square, triangle endpoints
-        painter.setPen(QPen(QColor(255,0,0)))
-        painter.setBrush(Qt.NoBrush)
-        painter.drawRect(self.boundingRect())
         painter.restore()
 
     def minorGridPainterPath(self):
