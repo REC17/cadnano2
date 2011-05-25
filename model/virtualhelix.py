@@ -381,7 +381,7 @@ class VirtualHelix(QObject):
                 fromB._set3Prime(*self._undoDat)
             # end if
             else:
-               fromB._set5Prime(*self._undoDat) 
+                fromB._set5Prime(*self._undoDat)
             # else
             
             self._fromHelix.basesModified.emit()
