@@ -86,8 +86,8 @@ class PathHelix(QGraphicsItem):
     def __init__(self, vhelix, parent):
         super(PathHelix, self).__init__(parent)
         self.rect = QRectF()
-
         self.setAcceptHoverEvents(True)  # for pathtools
+        self._pathHelixGroup = pathHelixGroup
         self._scafBreakpointHandles = []
         self._stapBreakpointHandles = []
         self._scafXoverHandles = []
@@ -96,7 +96,6 @@ class PathHelix(QGraphicsItem):
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
         self.step = 21  # 32 for Square lattice
-        self.pathController = pathController  # assumes parent is phg
         self.setZValue(styles.ZPATHHELIX)
         
         # self.updateRect()
@@ -108,6 +107,9 @@ class PathHelix(QGraphicsItem):
         self._handle = None
         self.setVHelix(vhelix)
     # end def
+    
+    def controller(self):
+        return self._pathHelixGroup.controller()
 
     def vhelix(self):
         return self._vhelix
@@ -156,32 +158,32 @@ class PathHelix(QGraphicsItem):
     
     ################################ Events ################################
     def hoverEnterEvent(self, event):
-        if self.pathController.toolUse == True:
-            self.pathController.toolHoverEnter(self,event)
+        if self.controller().toolUse == True:
+            self.controller().toolHoverEnter(self,event)
         else:
             QGraphicsItem.hoverEnterEvent(self,event)
         print "%i: I've got it!"%self._vhelix.number()
     # end def
     
     def hoverLeaveEvent(self, event):
-        if self.pathController.toolUse == True:
-            self.pathController.toolHoverLeave(self,event)
+        if self.controller().toolUse == True:
+            self.controller().toolHoverLeave(self,event)
         else:
             QGraphicsItem.hoverLeaveEvent(self,event)
         print "%i: I've lost it :("%self._vhelix.number()
     # end def
     
     def hoverMoveEvent(self, event):
-        if self.pathController.toolUse == True:
-            self.pathController.toolHoverMove(self,event)
+        if self.controller().toolUse == True:
+            self.controller().toolHoverMove(self,event)
         else:
             QGraphicsItem.hoverMoveEvent(self,event)
     # end def
 
     def mousePressEvent(self, event):
         """Activate this item as the current helix"""
-        if self.pathController.toolUse == True:
-            self.pathController.toolPress(self,event)
+        if self.controller().toolUse == True:
+            self.controller().toolPress(self,event)
         eventIndex = int(event.pos().x() / styles.PATH_BASE_WIDTH)
         self.updateAsActiveHelix(eventIndex)
     # end def
