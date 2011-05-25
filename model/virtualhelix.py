@@ -85,8 +85,8 @@ class VirtualHelix(QObject):
         oldNB = len(self._stapleBases)
         if newNumBases > oldNB:
             for n in range(oldNB, newNumBases):
-                self._stapleBases.append(Base(self, n))
-                self._scaffoldBases.append(Base(self, n))
+                self._stapleBases.append(Base(self, StrandType.Staple, n))
+                self._scaffoldBases.append(Base(self, StrandType.Scaffold, n))
         self.dimensionsModified.emit()
 
     def part(self):

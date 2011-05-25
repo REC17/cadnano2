@@ -46,7 +46,7 @@ class Base(object):
         threeB, fiveB = '_', '_'
         fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
         if self._3pBase:
-            if self._3pBase.vhelixNum()==self.vhelixNum():
+            if self._3pBase._vhelix==self._vhelix:
                 threeB = fiveTo3 and '>' or '<'
             else:
                 threeB = str(self._3pBase.vhelixNum())
@@ -55,7 +55,7 @@ class Base(object):
                 fiveB = fiveTo3 and '<' or '>'
             else:
                 fiveB = str(self._5pBase.vhelixNum())
-        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+        if fiveTo3:
             return fiveB+threeB
         else:
             return threeB+fiveB
