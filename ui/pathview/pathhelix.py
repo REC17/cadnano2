@@ -83,9 +83,9 @@ class PathHelix(QGraphicsItem):
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
 
-    def __init__(self, vhelix, parent):
-        super(PathHelix, self).__init__(parent)
-        self.rect = QRectF()
+
+    def __init__(self, vhelix, pathHelixGroup):
+        super(PathHelix, self).__init__(parent=pathHelixGroup)
         self.setAcceptHoverEvents(True)  # for pathtools
         self._pathHelixGroup = pathHelixGroup
         self._scafBreakpointHandles = []
@@ -127,6 +127,7 @@ class PathHelix(QGraphicsItem):
         newVH.dimensionsModified.connect(self.vhelixDimensionsModified)
         self.vhelixDimensionsModified()
         self.vhelixBasesModified()
+        self._pathHelixGroup.setVHelix(newVH)
     
     def handle(self):
         if self._handle:
@@ -184,7 +185,8 @@ class PathHelix(QGraphicsItem):
 
     def mousePressEvent(self, event):
         """Activate this item as the current helix"""
-        self._mouseDownBase = self.baseAtLocation(event.pos().x(), event.pos().y())
+        self._mouseDownY = event.pos().y()
+        self._mouseDownBase = self.baseAtLocation(event.pos().x(), self._mouseDownY)
         if self.controller().toolUse == True:
             self.controller().toolPress(self,event)
         else:
@@ -197,7 +199,7 @@ class PathHelix(QGraphicsItem):
     def mouseMoveEvent(self, event):
         if self.controller().toolUse == True:
             return
-        newBase = self.baseAtLocation(event.pos().x(), event.pos().y())
+        newBase = self.baseAtLocation(event.pos().x(), self._mouseDownY)
         if self._mouseDownBase and newBase:
             self.vhelix().undoStack().undo()
             self.painterToolApply(self._mouseDownBase, newBase)
@@ -263,13 +265,13 @@ class PathHelix(QGraphicsItem):
         self.update(self.boundingRect())
     # end def
 
-    ################################ Loading and Updating State From VHelix ##########################
+    ################## Loading and Updating State From VHelix ################
     def vhelixBasesModified(self):
         self._endpoints = None  # Clear endpoint drawing cache
         self._scaffoldLines = None  # Clear drawing cache of lines
         self.update()
 
-    ################################ Drawing ##########################
+    ################################ Drawing #################################
     def paint(self, painter, option, widget=None):
         # Note that the methods that fetch the paths
         # cache the paths and that those caches are
