@@ -165,7 +165,7 @@ class VirtualHelix(QObject):
         """Makes sure the basespec (strandType,index) is valid
         and raises or returns (None, None) according to raiseOnErr if
         it isn't valid"""
-        if strandType != StrandType.Scaffold and strandType!=StrandType.Staple:
+        if strandType != StrandType.Scaffold and strandType != StrandType.Staple:
             if raiseOnErr:
                 raise IndexError("Base (strand:%s index:%i) Not Valid"%(strandType,index))
             return (None, None)
@@ -226,6 +226,19 @@ class VirtualHelix(QObject):
                 else:
                     s = i
         return ret
+        
+    def get3PrimeXovers(self, strandType):
+        """"""
+        ret = []
+        strand = self._strand(strandType)
+        i, s = 0, None
+        for base in strand:
+            if base.is3primeXover():
+                ret.append( ( (self, base._n), \
+                    (base._3pBase.vhelix(), base._3pBase._n) ) )
+        # end for
+        return ret
+    # end def
     
     def setSandboxed(self, sb):
         if sb and not self._undoStack:
@@ -293,15 +306,17 @@ class VirtualHelix(QObject):
         assert(breakBeforeIndex < len(strand))
         self.clearStrand(strandType, breakBeforeIndex, breakBeforeIndex)
 
-    def installXoverTo(self, type, fromIndex, toVhelix, toIndex):
+    def installXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
         """docstring for installXoverTo"""
-        if type == StrandType.Scaffold:
-            assert(self.possibleNewCrossoverAt(fromIndex, toVhelix, toIndex))
-        elif type == StrandType.Staple:
-            assert(self.possibleStapCrossoverAt(fromIndex, toVhelix, toIndex))
+        if strandType == StrandType.Scaffold:
+            assert(self.possibleNewCrossoverAt(StrandType.Scaffold, \
+                                            fromIndex, toVhelix, toIndex))
+        elif strandType == StrandType.Staple:
+            assert(self.possibleStapCrossoverAt(StrandType.Staple, \
+                                            fromIndex, toVhelix, toIndex))
         else:
             raise IndexError("%s doesn't look like a StrandType" % type)
-        self.connectBases(self, strandType, fromIdx, toVH, toIdx)
+        self.connectBases(strandType, fromIndex, toVhelix, toIndex)
 
     def removeXoverTo(self, type, fromIndex, toVhelix, toIndex):
         """docstring for installXoverTo"""
@@ -453,12 +468,12 @@ class VirtualHelix(QObject):
         """docstring for scaffoldBase"""
         return self._scaffoldBases[index]
 
-    def possibleNewCrossoverAt(self, type, fromIndex, neighbor, toIndex):
+    def possibleNewCrossoverAt(self, s_type, fromIndex, neighbor, toIndex):
         """Return true if scaffold could crossover to neighbor at index.
         Useful for seeing if potential crossovers from potentialCrossoverList
         should be presented as points at which new a new crossover can be formed."""
-        fromB = self._strand(type)[fromIndex]
-        toB   = neighbor._strand(type)[toIndex]
+        fromB = self._strand(s_type)[fromIndex]
+        toB   = neighbor._strand(s_type)[toIndex]
         if fromB.isCrossover() or toB.isCrossover():
             return False
         return  not self.scaffoldBase(fromIndex).isEmpty() and \

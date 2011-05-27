@@ -41,7 +41,7 @@ from handles.precrossoverhandle import PreXoverHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 import ui.styles as styles
 from handles.pathhelixhandle import PathHelixHandle
-
+from handles.crossoverhandle import XoverHandle
 
 
 class PathHelixGroup(QGraphicsObject):
@@ -51,6 +51,8 @@ class PathHelixGroup(QGraphicsObject):
     the PathHelix, PathHelixHandles, and ActiveSliceHandle.
     """
     handleRadius = styles.SLICE_HELIX_RADIUS
+    scafPen = QPen(styles.scafstroke, 2)
+    nobrush = QBrush(Qt.NoBrush)
 
     def __init__(self, part,\
                        controller=None,\
@@ -69,7 +71,7 @@ class PathHelixGroup(QGraphicsObject):
         self.label.setPos(0, -40)
         self.label.setTextInteractionFlags(Qt.TextEditorInteraction)
         self.label.inputMethodEvent = None
-        
+        self.xoverGet = XoverHandle()
         self.activeHelix = None
         self.pchGroup = PreXoverHandleGroup(parent=self)
     
@@ -78,11 +80,6 @@ class PathHelixGroup(QGraphicsObject):
     
     def part(self):
         return self._part
-        
-    def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
-        """Called by PathHelix.mousePressEvent after the vhelix has calculated
-        its new PreXoverHandle positions."""
-        self.pchGroup.updateActiveHelix(virtualhelix)
     
     def setPart(self, newPart):
         if self.part:
@@ -94,6 +91,22 @@ class PathHelixGroup(QGraphicsObject):
     
     def controller(self):
         return self._controller
+        
+    def setVHelix(self, newVH):
+        newVH.basesModified.connect(self.vhelixBasesModified)
+        newVH.dimensionsModified.connect(self.vhelixDimensionsModified)
+        self.vhelixDimensionsModified()
+        self.vhelixBasesModified()
+        
+    def vhelixDimensionsModified(self):
+        """Sets rect width to reflect number of bases in vhelix. Sets
+        rect height to the width of two bases (one for scaffold and
+        one for staple)"""
+        pass
+    
+    def vhelixBasesModified(self):
+        self._xovers = None
+    # end def
     
     def activeSliceHandle(self):
         return self._activeSliceHandle
@@ -115,6 +128,8 @@ class PathHelixGroup(QGraphicsObject):
             ph = vhToPH.get(vh, None)
             if ph == None:
                 ph = PathHelix(vh, self)
+                rectA = self.mapRectFromItem(ph, ph.boundingRect())
+                self.rect = self.rect.united(rectA)
             newPathHelixList.append(ph)
         self._setPathHelixList(newPathHelixList)
         
@@ -151,8 +166,31 @@ class PathHelixGroup(QGraphicsObject):
         self.scene().views()[0].zoomToFit()
 
     def paint(self, painter, option, widget=None):
-        pass
-
+        # painter.save()
+        painter.setBrush(self.nobrush)
+        painter.setPen(self.scafPen)
+        self.drawXovers(painter) 
+        # painter.restore()
+        
+    def drawXovers(self, painter):
+        """Return a QPainterPath ready to paint the crossovers"""
+        for ph in self.pathHelixList:
+            for ((fromhelix, fromindex), (tohelix, toindex)) in \
+                                    ph.vhelix().get3PrimeXovers(StrandType.Scaffold):
+                path = self.xoverGet.getXover(self, StrandType.Scaffold, \
+                                    ph, fromindex,\
+                                    self.getPathHelix(tohelix), toindex)
+                painter.drawPath(path)
+            for ((fromhelix, fromindex), (tohelix, toindex)) in \
+                                    ph.vhelix().get3PrimeXovers(StrandType.Staple):
+                path = self.xoverGet.getXover(self, StrandType.Scaffold, \
+                                    ph, fromindex,\
+                                    self.getPathHelix(tohelix), toindex)
+                painter.drawPath(path)                        
+            # end for
+        # end for
+    # end def
+    
     geometryChanged = pyqtSignal()
     def boundingRect(self):
         # rect set only by _setPathHelixList
