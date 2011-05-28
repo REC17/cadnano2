@@ -103,6 +103,7 @@ class PathHelix(QGraphicsItem):
         # # of the PathHelix (while passing a handy reference to itself)
         # self.PathHelix3D = PathHelix3D(self)  # For Campbell
 
+        self.rect = QRectF()
         self._vhelix = None
         self._handle = None
         self._mouseDownBase = None

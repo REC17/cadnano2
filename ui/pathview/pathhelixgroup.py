@@ -204,47 +204,20 @@ class PathHelixGroup(QGraphicsObject):
         vhs.insert(idx, num)
         self.setDisplayedVHs(vhs)
 
-    @pyqtSlot(int)
-    def helixAddedSlot(self, vh):
-        """
-        Retrieve reference to new VirtualHelix vh based on number relayed
-        by the signal event. Next, create a new PathHelix associated
-        with vh and draw it on the screen. Finally, create or update
-        the ActiveSliceHandle.
-        """
-        number = vh.number()
-        vh = self.part.getVirtualHelix(number)
-        count = self.part.getVirtualHelixCount()
-        # Add PathHelixHandle
-        x = 0
-        xoff = -6 * self.handleRadius
-        y = 0
-        for k in self.numToPathHelix:
-            ph = self.numToPathHelix[k]
-            y = max(y, ph.boundingRect().height() + ph.pos().y())
-        ph = PathHelix(vh, self)
-        ph.setPos(QPointF(0,y))
-        self.numToPathHelix[number] = ph
-        phhY = ph.boundingRect().height()/2 - styles.PATHHELIXHANDLE_RADIUS
-        print "phhy %i"%phhY
-        phhY = 0
-        phh = PathHelixHandle(vh, QPointF(xoff, y + phhY), self)
-        self.numToPathHelixHandle[number] = phh
-        self.pathHelixList.append(number)
-        phh.setParentItem(self)
-        # Add PathHelix
-        ph.setParentItem(self)
-        # Update activeslicehandle
-        if count == 1:  # first vhelix added by mouse click
-            self.activeslicehandle.setParentItem(self)
-        self.activeslicehandle
-
     def zoomToFit(self):
         # Auto zoom to center the scene
         thescene = self.scene()
         theview = thescene.views()[0]
         theview.zoomToFit()
     # end def
+
+    @pyqtSlot(int)
+    def helixAddedSlot(self, vhref):
+        vhs = self.displayedVHs()
+        if vhref in vhs:
+            return
+        vhs.append(vhref)
+        self.setDisplayedVHs(vhs)
 
     @pyqtSlot(int)
     def helixRemovedSlot(self, vh):

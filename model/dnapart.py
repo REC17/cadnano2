@@ -53,6 +53,9 @@ class DNAPart(Part):
         # self._maxBase = 0  # Abstract (honeycomb is 42)
         # self._activeSlice = 0  # Abstract (honeycomb is 21)        
     
+    def __str__(self):
+        return "I am a DNA part"
+    
     def dimensions(self):
         return (self._maxRow, self._maxCol, self._maxBase)
     
