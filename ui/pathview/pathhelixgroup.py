@@ -128,8 +128,8 @@ class PathHelixGroup(QGraphicsObject):
             ph = vhToPH.get(vh, None)
             if ph == None:
                 ph = PathHelix(vh, self)
-                rectA = self.mapRectFromItem(ph, ph.boundingRect())
-                self.rect = self.rect.united(rectA)
+                # rectA = self.mapRectFromItem(ph, ph.boundingRect())
+                #                 self.rect = self.rect.united(rectA)
             newPathHelixList.append(ph)
         self._setPathHelixList(newPathHelixList)
         
