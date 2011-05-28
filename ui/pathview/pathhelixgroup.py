@@ -26,7 +26,7 @@
 """
 pathhelixgroup.py
 
-Created by Shawn on 2011-01-27.
+Created by Shawn on 2011-01-27. Tested by Nick
 """
 
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
