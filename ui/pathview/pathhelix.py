@@ -83,7 +83,6 @@ class PathHelix(QGraphicsItem):
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
 
-
     def __init__(self, vhelix, pathHelixGroup):
         super(PathHelix, self).__init__(parent=pathHelixGroup)
         self.setAcceptHoverEvents(True)  # for pathtools

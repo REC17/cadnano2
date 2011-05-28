@@ -55,7 +55,7 @@ class DNAPart(Part):
     
     def __str__(self):
         return "I am a DNA part"
-    
+
     def dimensions(self):
         return (self._maxRow, self._maxCol, self._maxBase)
     

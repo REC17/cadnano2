@@ -53,12 +53,18 @@ class Base(object):
             nOffsetOf3 = -1
         if self._3pBase:
             if self._3pBase._vhelix == self._vhelix:
-                threeB = fiveTo3 and '>' or '<'
+                if self._3pBase._n == self._n + nOffsetOf3:
+                    threeB = fiveTo3 and '>' or '<'
+                else:
+                    threeB = '!'
             else:
                 threeB = str(self._3pBase.vhelixNum())
         if self._5pBase:
             if self._5pBase.vhelixNum() == self.vhelixNum():
-                fiveB = fiveTo3 and '<' or '>'
+                if self._5pBase._n == self._n - nOffsetOf3:
+                    fiveB = fiveTo3 and '<' or '>'
+                else:
+                    fiveB = '!'
             else:
                 fiveB = str(self._5pBase.vhelixNum())
         if fiveTo3:
@@ -169,6 +175,18 @@ class Base(object):
             if self.vhelixNum() != self._3pBase.vhelixNum():
                 return True
             elif self.partId() != self._3pBase.partId():
+                return True
+        return False
+
+    def is3primeXover(self):
+        """Return True if no 3pBase, but 5pBase exists."""
+        if self._3pBase != None:
+            if self.vhelixNum() != self._3pBase.vhelixNum():
+                return True
+            elif self.partId() != self._3pBase.partId():
+                return True
+            # this case assumes the opposite of the first number case
+            elif abs(self._n - self._3pBase._n) != 1:
                 return True
         return False
 
